@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CWK Gacha Chances</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #0d0f1a;
+    --surface:   #161927;
+    --surface2:  #1e2235;
+    --border:    #2a2f47;
+    --accent:    #7c5cfc;
+    --accent2:   #c084fc;
+    --gold:      #f0c040;
+    --text:      #e8eaf6;
+    --muted:     #6b7280;
+    --star1:     #90a0b0;
+    --star2:     #4aade8;
+    --star3:     #f0c040;
+    --bar-low:   #4a6fa5;
+    --bar-mid:   #7c5cfc;
+    --bar-high:  #c084fc;
+    --radius:    10px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  .page-header {
+    background: linear-gradient(135deg, #0d0f1a 0%, #1a1040 50%, #0d0f1a 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 1.5rem 1rem 1rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .page-header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(124,92,252,0.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .page-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(1.2rem, 4vw, 2rem);
+    background: linear-gradient(135deg, #a78bfa, #f0c040);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: .04em;
+    position: relative;
+  }
+  .page-subtitle {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-top: .35rem;
+    position: relative;
+  }
+
+  /* ── Chest tabs ── */
+  .chest-tabs {
+    display: flex;
+    justify-content: center;
+    gap: .5rem;
+    padding: .9rem 1rem;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .chest-tab {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: .4rem 1.1rem;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: .9rem;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all .18s;
+    letter-spacing: .04em;
+  }
+  .chest-tab:hover { border-color: var(--accent); color: var(--text); }
+  .chest-tab.active {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-color: transparent;
+    color: #fff;
+  }
+
+  /* ── Controls ── */
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .6rem;
+    padding: .75rem 1rem;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    align-items: center;
+  }
+  .search-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 180px;
+    max-width: 320px;
+  }
+  .search-wrap svg {
+    position: absolute;
+    left: .7rem; top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    width: 15px; height: 15px;
+    pointer-events: none;
+  }
+  .search-input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: .45rem .7rem .45rem 2.1rem;
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: .9rem;
+    outline: none;
+    transition: border-color .18s;
+  }
+  .search-input:focus { border-color: var(--accent); }
+  .search-input::placeholder { color: var(--muted); }
+
+  select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: .45rem .7rem;
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: .9rem;
+    outline: none;
+    cursor: pointer;
+    transition: border-color .18s;
+  }
+  select:focus { border-color: var(--accent); }
+
+  .stat-pill {
+    margin-left: auto;
+    font-size: .8rem;
+    color: var(--muted);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: .3rem .8rem;
+    white-space: nowrap;
+  }
+  .stat-pill span { color: var(--accent2); font-weight: 700; }
+
+  /* ── Grid ── */
+  .grid-wrap { padding: 1rem; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: .75rem;
+  }
+
+  /* ── Card ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: .75rem;
+    cursor: pointer;
+    transition: border-color .18s, transform .12s;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius);
+    background: linear-gradient(135deg, rgba(124,92,252,0.04), transparent);
+    pointer-events: none;
+  }
+  .card:hover { border-color: var(--accent); transform: translateY(-1px); }
+
+  /* Card header */
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: .55rem;
+  }
+  .card-icon-wrap {
+    width: 52px; height: 52px;
+    flex-shrink: 0;
+    background: rgba(0,0,0,0.3);
+    border-radius: 7px;
+    overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .card-icon {
+    width: 52px; height: 52px;
+    object-fit: contain;
+    image-rendering: pixelated;
+  }
+  .card-header-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: .15rem;
+  }
+  .card-top-row {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+  }
+  .star-badge {
+    font-size: .7rem;
+    font-weight: 700;
+    padding: .1rem .35rem;
+    border-radius: 4px;
+    letter-spacing: .03em;
+    flex-shrink: 0;
+  }
+  .star-1 { background: rgba(144,160,176,.15); color: var(--star1); border: 1px solid rgba(144,160,176,.3); }
+  .star-2 { background: rgba(74,173,232,.15); color: var(--star2); border: 1px solid rgba(74,173,232,.3); }
+  .star-3 { background: rgba(240,192,64,.15); color: var(--star3); border: 1px solid rgba(240,192,64,.3); }
+  .card-name {
+    font-size: .9rem;
+    font-weight: 700;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: .03em;
+  }
+  .awaken-tag {
+    display: inline-block;
+    font-size: .65rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, rgba(192,132,252,.2), rgba(124,92,252,.2));
+    border: 1px solid rgba(192,132,252,.4);
+    color: var(--accent2);
+    border-radius: 3px;
+    padding: 0 .3rem;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    margin-left: .3rem;
+    vertical-align: middle;
+  }
+  .card-pct {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--accent2);
+    letter-spacing: .02em;
+  }
+  .card-pct.zero { color: var(--muted); }
+
+  /* Bar */
+  .card-bar-wrap {
+    height: 4px;
+    background: var(--surface2);
+    border-radius: 2px;
+    margin-top: .55rem;
+    overflow: hidden;
+  }
+  .card-bar {
+    height: 100%;
+    border-radius: 2px;
+    transition: width .3s ease;
+  }
+  .bar-low  { background: var(--bar-low); }
+  .bar-mid  { background: var(--bar-mid); }
+  .bar-high { background: linear-gradient(90deg, var(--bar-mid), var(--bar-high)); }
+
+  /* Expanded detail */
+  .card-detail {
+    display: none;
+    margin-top: .65rem;
+    padding-top: .6rem;
+    border-top: 1px solid var(--border);
+    animation: fadeIn .15s ease;
+  }
+  .card-detail.open { display: block; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }
+  .detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: .2rem 0;
+    font-size: .82rem;
+  }
+  .detail-chest { color: var(--muted); font-weight: 600; }
+  .detail-val   { font-weight: 700; color: var(--text); }
+  .detail-val.zero { color: var(--muted); }
+
+  /* Empty state */
+  .empty {
+    grid-column: 1/-1;
+    text-align: center;
+    padding: 3rem;
+    color: var(--muted);
+    font-size: 1rem;
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="page-title">⚗ Gacha Chances</div>
+  <div class="page-subtitle">Standard · Premium · Gold Chests &nbsp;·&nbsp; 200 creatures</div>
+</div>
+
+<div class="chest-tabs" id="chest-tabs"></div>
+
+<div class="controls">
+  <div class="search-wrap">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+    </svg>
+    <input class="search-input" id="search" type="text" placeholder="Search creature…">
+  </div>
+  <select id="star-filter">
+    <option value="all">All Stars</option>
+    <option value="1">★ Common</option>
+    <option value="2">★★ Uncommon</option>
+    <option value="3">★★★ Rare</option>
+  </select>
+  <select id="form-filter">
+    <option value="all">Base + Awaken</option>
+    <option value="Base">Base only</option>
+    <option value="Awaken">Awaken only</option>
+  </select>
+  <select id="sort-by">
+    <option value="chance">Sort: Chance</option>
+    <option value="name">Sort: Name</option>
+    <option value="star">Sort: Stars</option>
+  </select>
+  <div class="stat-pill" id="stat-pill">Showing <span id="showing-count">0</span> entries</div>
+</div>
+
+<div class="grid-wrap">
+  <div class="grid" id="grid"></div>
+</div>
+
+<script>
+const RAW_DATA = {"creatures":[{"name":"BaldingMan","spriteBase":"Creature_WanderingBaldMan","spriteAwaken":"Creature_WanderingBaldMan","Base":{"star":1,"weights":{"StandardChest":3000,"PremiumChest":265,"GoldChest":0}}},{"name":"BogFrogBomb","spriteBase":"Creature_BogFrogBomb","spriteAwaken":"Creature_BogFrogBomb","Base":{"star":1,"weights":{"StandardChest":3000,"PremiumChest":265,"GoldChest":0}}},{"name":"BurnedCutie","spriteBase":"Creature_BurnedCutie","spriteAwaken":"Creature_BurnedCutie","Base":{"star":1,"weights":{"StandardChest":0,"PremiumChest":240,"GoldChest":0}}},{"name":"CactusBall","spriteBase":"Creature_CactusBall","spriteAwaken":"Creature_CactusBall_Evo","Base":{"star":1,"weights":{"StandardChest":3000,"PremiumChest":265,"GoldChest":0}}},{"name":"CoolDog","spriteBase":"Creature_CoolDog","spriteAwaken":"Creature_CoolDog_Evo","Base":{"star":1,"weights":{"StandardChest":3000,"PremiumChest":300,"GoldChest":0}}},{"name":"CornBall","spriteBase":"Creature_CornBall","spriteAwaken":"Creature_CornBall","Base":{"star":1,"weights":{"StandardChest":3000,"PremiumChest":265,"GoldChest":0}}},{"name":"CornDog","spriteBase":"Creature_CornDog","spriteAwaken":"Creature_CornDog_Evo","Base":{"star":1,"weights":{"StandardChest":3000,"PremiumChest":265,"GoldChest":0}}},{"name":"CornEyeBat","spriteBase":"Creature_CornEyeBat","spriteAwaken":"Creature_CornEyeBat","Base":{"star":1,"weights":{"StandardChest":3000,"PremiumChest":265,"GoldChest":0}},"Awaken":{"star":3,"weights":{"StandardChest":0,"PremiumChest":56,"GoldChest":0}}},{"name":"CornWorm","spriteBase":"Creature_CornWorm","spriteAwaken":"Creature_CornWorm","Base":{"star":1,"weights":{"StandardChest":3000,"PremiumChest":265,"GoldChest":0}}},{"name":"CottonCutie","spriteBase":"Creature_CottonCutie","spriteAwaken":"Creature_CottonCutie","Base":{"star":1,"weights":{"StandardChest":3000,"PremiumChest":265,"GoldChest":0}}},{"name":"CottonEyeBat","spriteBase":"Creature_CottonEyeBat","spriteAwaken":"Creature_CottonEyeBat","Base":{"star":1,"weights":{"StandardChest":0,"PremiumChest":55,"GoldChest":0}},"Awaken":{"star":1,"weights":{"StandardChest":0,"PremiumChest":55,"GoldChest":0}}},{"name":"CottonEyeBat","spriteBase":"Creature_CottonEyeBat","spriteAwaken":"Creature_CottonEyeBat","Base":{"star":1,"weights":{"StandardChest":3000,"PremiumChest":300,"GoldChest":0}},"Awaken":{"star":1,"weights":{"StandardChest":0,"PremiumChest":55,"GoldChest":0}}},{"name":"DevilEye","spriteBase":"Creature_DevilEye","spriteAwaken":"Creature_DevilEye","Base":{"star":1,"weights":{"StandardChest":0,"PremiumChest":240,"GoldChest":0}}},{"name":"DustBunny","spriteBase":"Creature_DustBunny","spriteAwaken":"Creature_DustBunny_Evo","Base":{"star":1,"weights":{"StandardChest":3000,"PremiumChest":265,"GoldChest":0}}},{"name":"EmbarrassingBard","spriteBase":"Creature_EmbarrassingBard","spriteAwaken":"Creature_EmbarrassingBard","Base":{"star":1,"weights":{"StandardChest":100,"PremiumChest":65,"GoldChest":0}}},{"name":"Fatapillar","spriteBase":"Creature_Fatapillar","spriteAwaken":"Creature_Fatapillar","Base":{"star":1,"weights":{"StandardChest":0,"PremiumChest":240,"GoldChest":0}}},{"name":"FlySwatter","spriteBase":"Creature_FlySwatter","spriteAwaken":"Creature_FlySwatter","Base":{"star":1,"weights":{"StandardChest":3000,"PremiumChest":240,"GoldChest":0}}},{"name":"FreezyJ","spriteBase":"Creature_FreezyJ","spriteAwaken":"Creature_FreezyJ","Base":{"star":1,"weights":{"StandardChest":0,"PremiumChest":240,"GoldChest":0}}},{"name":"FunGuy","spriteBase":"Creature_FunGuy","spriteAwaken":"Creature_FunGuy","Base":{"star":1,"weights":{"StandardChest":3000,"PremiumChest":150,"GoldChest":0}}},{"name":"GreenMermaid","spriteBase":"Creature_GreenMermaid","spriteAwaken":"Creature_GreenMermaid_Evo","Base":{"star":1,"weights":{"StandardChest":3000,"PremiumChest":265,"GoldChest":0}}},{"name":"HeartAngel","spriteBase":"Creature_AngelHeart","spriteAwaken":"Creature_AngelHeart_Evo","Base":{"star":1,"weights":{"StandardChest":3000,"PremiumChest":265,"GoldChest":0}}},{"name":"Herculeye","spriteBase":"Creature_Herculeye","spriteAwaken":"Creature_Herculeye","Base":{"star":1,"weights":{"StandardChest":3000,"PremiumChest":265,"GoldChest":0}}},{"name":"KnifeKite","spriteBase":"Creature_KnifeKite","spriteAwaken":"Creature_KnifeKite_Evo","Base":{"star":1,"weights":{"StandardChest":3000,"PremiumChest":300,"GoldChest":0}}},{"name":"ManowarElf","spriteBase":"Creature_ManowarElf","spriteAwaken":"Creature_ManowarElf","Base":{"star":1,"weights":{"StandardChest":3000,"PremiumChest":265,"GoldChest":0}}},{"name":"MsMummy","spriteBase":"Creature_MsMummy","spriteAwaken":"Creature_MsMummy","Base":{"star":1,"weights":{"StandardChest":3000,"PremiumChest":300,"GoldChest":0}}},{"name":"Ninja","spriteBase":"Creature_Ninja","spriteAwaken":"Creature_Ninja","Base":{"star":1,"weights":{"StandardChest":3000,"PremiumChest":265,"GoldChest":0}}},{"name":"Pig","spriteBase":"Creature_Pig","spriteAwaken":"Creature_Pig_Evo","Base":{"star":1,"weights":{"StandardChest":3000,"PremiumChest":265,"GoldChest":0}}},{"name":"SandKnight","spriteBase":"Creature_SandKnight","spriteAwaken":"Creature_SandKnight","Base":{"star":1,"weights":{"StandardChest":3000,"PremiumChest":265,"GoldChest":0}}},{"name":"SandSnake","spriteBase":"Creature_SandSnake","spriteAwaken":"Creature_SandSnake","Base":{"star":1,"weights":{"StandardChest":500,"PremiumChest":100,"GoldChest":0}},"Awaken":{"star":1,"weights":{"StandardChest":500,"PremiumChest":100,"GoldChest":0}}},{"name":"SandSnake","spriteBase":"Creature_SandSnake","spriteAwaken":"Creature_SandSnake","Base":{"star":1,"weights":{"StandardChest":3000,"PremiumChest":200,"GoldChest":0}},"Awaken":{"star":1,"weights":{"StandardChest":500,"PremiumChest":100,"GoldChest":0}}},{"name":"ShamanWoad","spriteBase":"Creature_ShamanWoad","spriteAwaken":"Creature_ShamanWoad_Evo","Base":{"star":1,"weights":{"StandardChest":75,"PremiumChest":40,"GoldChest":0}},"Awaken":{"star":1,"weights":{"StandardChest":75,"PremiumChest":40,"GoldChest":0}}},{"name":"ShamanWoad","spriteBase":"Creature_ShamanWoad","spriteAwaken":"Creature_ShamanWoad_Evo","Base":{"star":1,"weights":{"StandardChest":3000,"PremiumChest":265,"GoldChest":0}},"Awaken":{"star":1,"weights":{"StandardChest":75,"PremiumChest":40,"GoldChest":0}}},{"name":"ShieldMaizen","spriteBase":"Creature_ShieldMaizen","spriteAwaken":"Creature_ShieldMaizen_Evo","Base":{"star":1,"weights":{"StandardChest":3000,"PremiumChest":265,"GoldChest":0}}},{"name":"SkeletalHand","spriteBase":"Creature_SkeletalHand","spriteAwaken":"Creature_SkeletalHand","Base":{"star":1,"weights":{"StandardChest":0,"PremiumChest":240,"GoldChest":0}}},{"name":"SnakeMint","spriteBase":"Creature_SnakeMint","spriteAwaken":"Creature_SnakeMint","Base":{"star":1,"weights":{"StandardChest":3000,"PremiumChest":265,"GoldChest":0}}},{"name":"SnowBall","spriteBase":"Creature_Snowball","spriteAwaken":"Creature_SnowBall","Base":{"star":1,"weights":{"StandardChest":0,"PremiumChest":240,"GoldChest":0}}},{"name":"SnowEyeBat","spriteBase":"Creature_SnowEyeBat","spriteAwaken":"Creature_SnowEyeBat","Base":{"star":1,"weights":{"StandardChest":0,"PremiumChest":240,"GoldChest":0}}},{"name":"SnuggleTree","spriteBase":"Creature_SnuggleTree","spriteAwaken":"Creature_SnuggleTree","Base":{"star":1,"weights":{"StandardChest":3000,"PremiumChest":265,"GoldChest":0}}},{"name":"SoftEyeling","spriteBase":"Creature_SoftEyeling","spriteAwaken":"Creature_SoftEyeling","Base":{"star":1,"weights":{"StandardChest":3000,"PremiumChest":265,"GoldChest":0}}},{"name":"SwampyTire","spriteBase":"Creature_SwampyTire","spriteAwaken":"Creature_SwampyTire_Evo","Base":{"star":1,"weights":{"StandardChest":3000,"PremiumChest":265,"GoldChest":0}}},{"name":"WallOfSand","spriteBase":"Creature_WallOfSand","spriteAwaken":"Creature_WallOfSand","Base":{"star":1,"weights":{"StandardChest":3000,"PremiumChest":265,"GoldChest":0}}},{"name":"WizardElf","spriteBase":"Creature_WizardElf","spriteAwaken":"Creature_WizardElf","Base":{"star":1,"weights":{"StandardChest":3000,"PremiumChest":150,"GoldChest":0}}},{"name":"YellowMermaid","spriteBase":"Creature_MermaidYellow","spriteAwaken":"Creature_MermaidYellow","Base":{"star":1,"weights":{"StandardChest":0,"PremiumChest":120,"GoldChest":0}}},{"name":"ethanallfire","spriteBase":"Creature_BurningBush","spriteAwaken":"Creature_BurningBush_Evo","Base":{"star":1,"weights":{"StandardChest":0,"PremiumChest":240,"GoldChest":0}}},{"name":"AncientScholar","spriteBase":"Creature_AncientScholar","spriteAwaken":"Creature_FutureScholar","Base":{"star":2,"weights":{"StandardChest":750,"PremiumChest":230,"GoldChest":100}}},{"name":"AngelEye","spriteBase":"Creature_AngelBall","spriteAwaken":"Creature_AngelBall","Base":{"star":2,"weights":{"StandardChest":750,"PremiumChest":230,"GoldChest":0}}},{"name":"ArcherDan","spriteBase":"Creature_ArcherDan","spriteAwaken":"Creature_ArcherDan_Evo","Base":{"star":2,"weights":{"StandardChest":750,"PremiumChest":235,"GoldChest":100}}},{"name":"ArmourOfBooks","spriteBase":"Creature_ArmourOfBooks","spriteAwaken":"Creature_ArmourOfBooks","Base":{"star":2,"weights":{"StandardChest":750,"PremiumChest":230,"GoldChest":100}}},{"name":"BeachMum","spriteBase":"Creature_BeachMum","spriteAwaken":"Creature_BeachMum_Evo","Base":{"star":2,"weights":{"StandardChest":750,"PremiumChest":200,"GoldChest":100}}},{"name":"CactusThug","spriteBase":"Creature_CactusThug","spriteAwaken":"Creature_CactusThug_Evo","Base":{"star":2,"weights":{"StandardChest":750,"PremiumChest":230,"GoldChest":100}}},{"name":"CornRonin","spriteBase":"Creature_CornRonin","spriteAwaken":"Creature_CornRonin","Base":{"star":2,"weights":{"StandardChest":100,"PremiumChest":60,"GoldChest":0}}},{"name":"CornWall","spriteBase":"Creature_CornWall","spriteAwaken":"Creature_CornWall_Evo","Base":{"star":2,"weights":{"StandardChest":750,"PremiumChest":230,"GoldChest":0}}},{"name":"Cornataur","spriteBase":"Creature_Cornataur","spriteAwaken":"Creature_Cornataur","Base":{"star":2,"weights":{"StandardChest":100,"PremiumChest":55,"GoldChest":0}}},{"name":"CottonSaurusRex","spriteBase":"Creature_CottonsaurusRex","spriteAwaken":"Creature_CottonsaurusRex_Evo","Base":{"star":2,"weights":{"StandardChest":100,"PremiumChest":65,"GoldChest":0}}},{"name":"Cow","spriteBase":"Creature_Cow","spriteAwaken":"Creature_Cow_Evo","Base":{"star":2,"weights":{"StandardChest":750,"PremiumChest":230,"GoldChest":100}}},{"name":"DollyLlama","spriteBase":"Creature_DollyLlama","spriteAwaken":"Creature_DollyLlama","Base":{"star":2,"weights":{"StandardChest":750,"PremiumChest":100,"GoldChest":100}}},{"name":"DonkeyKhan","spriteBase":"Creature_DonkeyKahn","spriteAwaken":"Creature_DonkeyKahn","Base":{"star":2,"weights":{"StandardChest":750,"PremiumChest":150,"GoldChest":100}}},{"name":"DrDeath","spriteBase":"Creature_DrDeath","spriteAwaken":"Creature_DrDeath_Evo","Base":{"star":2,"weights":{"StandardChest":750,"PremiumChest":230,"GoldChest":100}}},{"name":"DullCoolDog","spriteBase":"Creature_SnowyCoolDog","spriteAwaken":"Creature_SnowyCoolDog2","Base":{"star":2,"weights":{"StandardChest":0,"PremiumChest":120,"GoldChest":0}}},{"name":"EnlightenedBaldMan","spriteBase":"Creature_EnlightenedBaldMan","spriteAwaken":"Creature_EnlightenedBaldMan","Base":{"star":2,"weights":{"StandardChest":750,"PremiumChest":250,"GoldChest":100}}},{"name":"Flufflapillar","spriteBase":"Creature_Flufflapillar","spriteAwaken":"Creature_Flufflapillar","Base":{"star":2,"weights":{"StandardChest":750,"PremiumChest":265,"GoldChest":0}}},{"name":"Fummy","spriteBase":"Creature_Fummy22","spriteAwaken":"Creature_Fummy_Evo","Base":{"star":2,"weights":{"StandardChest":0,"PremiumChest":120,"GoldChest":0}}},{"name":"HeadphoneJerk","spriteBase":"Creature_HeadphoneJerk","spriteAwaken":"Creature_HeadphoneJerk","Base":{"star":2,"weights":{"StandardChest":100,"PremiumChest":65,"GoldChest":0}}},{"name":"HotEyeBat","spriteBase":"Creature_HotEyeBat","spriteAwaken":"Creature_HotEyeBat","Base":{"star":2,"weights":{"StandardChest":0,"PremiumChest":120,"GoldChest":0}}},{"name":"HuskerGiant","spriteBase":"Creature_HuskerGiant","spriteAwaken":"Creature_HuskerGiant","Base":{"star":2,"weights":{"StandardChest":750,"PremiumChest":250,"GoldChest":100}}},{"name":"HuskerKnight","spriteBase":"Creature_HuskerKnight","spriteAwaken":"Creature_HuskerKnight_Evo","Base":{"star":2,"weights":{"StandardChest":750,"PremiumChest":230,"GoldChest":100}}},{"name":"HuskerTanker","spriteBase":"Creature_HuskerTanker","spriteAwaken":"Creature_HuskerTanker_Evo","Base":{"star":2,"weights":{"StandardChest":750,"PremiumChest":250,"GoldChest":100}}},{"name":"IcePaladin","spriteBase":"Creature_IceKnight","spriteAwaken":"Creature_IceKnight","Base":{"star":2,"weights":{"StandardChest":0,"PremiumChest":120,"GoldChest":0}}},{"name":"IcyWall","spriteBase":"Creature_IcyWall","spriteAwaken":"Creature_IcyWall","Base":{"star":2,"weights":{"StandardChest":0,"PremiumChest":120,"GoldChest":0}}},{"name":"KnightOfObesity","spriteBase":"Creature_KnightOfObesity","spriteAwaken":"Creature_KnightOfObesity_Evo","Base":{"star":2,"weights":{"StandardChest":750,"PremiumChest":160,"GoldChest":100}}},{"name":"LadyScarab","spriteBase":"Creature_LadyScarab","spriteAwaken":"Creature_LadyScarab_Evo","Base":{"star":2,"weights":{"StandardChest":750,"PremiumChest":230,"GoldChest":100}}},{"name":"LegionOfEarlings","spriteBase":"Creature_LegionOfEarlings","spriteAwaken":"Creature_LegionOfEarlings","Base":{"star":2,"weights":{"StandardChest":750,"PremiumChest":75,"GoldChest":0}}},{"name":"MaiseWalker","spriteBase":"Creature_MaizeWalker","spriteAwaken":"Creature_MaizeWalker_Evo","Base":{"star":2,"weights":{"StandardChest":750,"PremiumChest":250,"GoldChest":100}}},{"name":"Nefertiti","spriteBase":"Creature_Nefertiti","spriteAwaken":"Creature_Nefertiti","Base":{"star":2,"weights":{"StandardChest":750,"PremiumChest":150,"GoldChest":100}}},{"name":"PajamaNinja","spriteBase":"Creature_PajamaNinja","spriteAwaken":"Creature_PajamaNinja","Base":{"star":2,"weights":{"StandardChest":0,"PremiumChest":120,"GoldChest":0}}},{"name":"Paladim","spriteBase":"Creature_Paladim","spriteAwaken":"Creature_Paladim","Base":{"star":2,"weights":{"StandardChest":0,"PremiumChest":120,"GoldChest":0}}},{"name":"PeteMoss","spriteBase":"Creature_PeteMoss","spriteAwaken":"Creature_PeteMoss_Evo","Base":{"star":2,"weights":{"StandardChest":750,"PremiumChest":230,"GoldChest":100}}},{"name":"Phyllis","spriteBase":"Creature_Phyllis","spriteAwaken":"Creature_Phyllis","Base":{"star":2,"weights":{"StandardChest":750,"PremiumChest":200,"GoldChest":0}}},{"name":"PoppaCorn","spriteBase":"Creature_PoppaCorn","spriteAwaken":"Creature_PoppaCorn","Base":{"star":2,"weights":{"StandardChest":750,"PremiumChest":230,"GoldChest":100}}},{"name":"PyramidTheKid","spriteBase":"Creature_PyramidTheKid","spriteAwaken":"Creature_PyramidTheKid","Base":{"star":2,"weights":{"StandardChest":750,"PremiumChest":235,"GoldChest":100}}},{"name":"Ra","spriteBase":"Creature_Ra","spriteAwaken":"Creature_Ra_Evo","Base":{"star":2,"weights":{"StandardChest":750,"PremiumChest":230,"GoldChest":100}}},{"name":"RobotScarab","spriteBase":"Creature_RobotScarab2","spriteAwaken":"Creature_RobotScarab2","Base":{"star":2,"weights":{"StandardChest":0,"PremiumChest":120,"GoldChest":0}}},{"name":"SandEyeBat","spriteBase":"Creature_SandEyeBat","spriteAwaken":"Creature_SandEyeBat","Base":{"star":2,"weights":{"StandardChest":750,"PremiumChest":220,"GoldChest":0}}},{"name":"SandJackal","spriteBase":"Creature_SandJackal","spriteAwaken":"Creature_SandJackal","Base":{"star":2,"weights":{"StandardChest":750,"PremiumChest":265,"GoldChest":0}}},{"name":"Sandwitch","spriteBase":"Creature_SandWitch","spriteAwaken":"Creature_SandwichWitch_Evo","Base":{"star":2,"weights":{"StandardChest":750,"PremiumChest":230,"GoldChest":100}}},{"name":"Seahorse","spriteBase":"Creature_Seahorse","spriteAwaken":"Creature_Seahorse","Base":{"star":2,"weights":{"StandardChest":0,"PremiumChest":120,"GoldChest":0}}},{"name":"Shepard","spriteBase":"Creature_FairyShepard","spriteAwaken":"Creature_FairyShepard_Evo","Base":{"star":2,"weights":{"StandardChest":750,"PremiumChest":250,"GoldChest":100}}},{"name":"SnowDog","spriteBase":"Creature_SnowDog","spriteAwaken":"Creature_SnowDog","Base":{"star":2,"weights":{"StandardChest":0,"PremiumChest":240,"GoldChest":0}}},{"name":"SnowSludger","spriteBase":"Creature_SnowSludger","spriteAwaken":"Creature_SnowSludger","Base":{"star":2,"weights":{"StandardChest":0,"PremiumChest":120,"GoldChest":0}}},{"name":"SnowyMcSnow","spriteBase":"Creature_SnowMan","spriteAwaken":"Creature_SnowMan","Base":{"star":2,"weights":{"StandardChest":0,"PremiumChest":120,"GoldChest":0}}},{"name":"SoftRock","spriteBase":"Creature_SoftRock","spriteAwaken":"Creature_SoftRock_Evo","Base":{"star":2,"weights":{"StandardChest":750,"PremiumChest":230,"GoldChest":100}}},{"name":"StruzanJinn","spriteBase":"Creature_StruzanJinn","spriteAwaken":"Creature_StruzanJinn","Base":{"star":2,"weights":{"StandardChest":750,"PremiumChest":150,"GoldChest":100}}},{"name":"TheDrooler","spriteBase":"Creature_TheDrooler","spriteAwaken":"Creature_TheDrooler","Base":{"star":2,"weights":{"StandardChest":750,"PremiumChest":300,"GoldChest":100}}},{"name":"Tomezooka","spriteBase":"Creature_TomeZooka","spriteAwaken":"Creature_TomeZooka_Evo","Base":{"star":2,"weights":{"StandardChest":750,"PremiumChest":250,"GoldChest":100}}},{"name":"WhiteNinja","spriteBase":"Creature_WhiteNinja","spriteAwaken":"Creature_WhiteNinja","Base":{"star":2,"weights":{"StandardChest":750,"PremiumChest":200,"GoldChest":0}}},{"name":"WinterCow","spriteBase":"Creature_WinterCow","spriteAwaken":"Creature_WinterCow","Base":{"star":2,"weights":{"StandardChest":0,"PremiumChest":120,"GoldChest":0}}},{"name":"AlbinoEyeBat","spriteBase":"Creature_WhiteEyeBat","spriteAwaken":"Creature_WhiteEyeBat","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":54,"GoldChest":0}}},{"name":"AngelOfDark","spriteBase":"Creature_AngelOfDark","spriteAwaken":"Creature_AngelOfDark","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":65,"GoldChest":0}}},{"name":"AngelOfSand","spriteBase":"Creature_AngelOfSand","spriteAwaken":"Creature_AngelOfSand","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":65,"GoldChest":0}}},{"name":"AngelOfSnow","spriteBase":"Creature_SnowAngel","spriteAwaken":"Creature_SnowAngel","Base":{"star":3,"weights":{"StandardChest":0,"PremiumChest":44,"GoldChest":0}}},{"name":"AngelOfVanilla","spriteBase":"Creature_AngelOfVanilla","spriteAwaken":"Creature_AngelOfVanilla","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":58,"GoldChest":0}}},{"name":"ApplePieclops","spriteBase":"Creature_Pieclops_Evo","spriteAwaken":"Creature_Pieclops_Evo","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":62,"GoldChest":0}}},{"name":"AppleTree","spriteBase":"Creature_AppleTree","spriteAwaken":"Creature_AppleTree","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":65,"GoldChest":0}}},{"name":"BadRose","spriteBase":"Creature_BadRose","spriteAwaken":"Creature_BadRose","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":54,"GoldChest":0}}},{"name":"BanShePriness","spriteBase":"Creature_BanShePrincess","spriteAwaken":"Creature_BanShePrincess","Base":{"star":3,"weights":{"StandardChest":75,"PremiumChest":54,"GoldChest":0}},"Awaken":{"star":3,"weights":{"StandardChest":75,"PremiumChest":54,"GoldChest":0}}},{"name":"BanSheQueen","spriteBase":"Creature_BanSheQueen","spriteAwaken":"Creature_BanSheQueen","Base":{"star":3,"weights":{"StandardChest":75,"PremiumChest":54,"GoldChest":0}},"Awaken":{"star":3,"weights":{"StandardChest":75,"PremiumChest":54,"GoldChest":0}}},{"name":"Batclops","spriteBase":"Creature_Batclops","spriteAwaken":"Creature_Batclops_Evo","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":60,"GoldChest":3}}},{"name":"BespectacledOgre","spriteBase":"Creature_BespectacledOgre","spriteAwaken":"Creature_BespectacledOgre","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":60,"GoldChest":0}}},{"name":"BlackCat","spriteBase":"Creature_BlackCat","spriteAwaken":"Creature_BlackCat","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":65,"GoldChest":0}}},{"name":"BlackFisherFish","spriteBase":"Creature_BlackFisherFish","spriteAwaken":"Creature_BlackFisherFish","Base":{"star":3,"weights":{"StandardChest":0,"PremiumChest":40,"GoldChest":0}}},{"name":"BlackPaladin","spriteBase":"Creature_BlackPaladin","spriteAwaken":"Creature_BlackPaladin","Base":{"star":3,"weights":{"StandardChest":0,"PremiumChest":120,"GoldChest":0}}},{"name":"BogBanSheAngel","spriteBase":"Creature_BogBanSheAngel","spriteAwaken":"Creature_BogBanSheAngel_Evo","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":58,"GoldChest":3}}},{"name":"BogBum","spriteBase":"Creature_BogBum","spriteAwaken":"Creature_BogBum","Base":{"star":3,"weights":{"StandardChest":0,"PremiumChest":57,"GoldChest":0}}},{"name":"CaptainTaco","spriteBase":"Creature_CaptainTaco","spriteAwaken":"Creature_CaptainTaco","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":50,"GoldChest":3}}},{"name":"ChadBear","spriteBase":"Creature_ChadBear","spriteAwaken":"Creature_ChadBear","Base":{"star":3,"weights":{"StandardChest":0,"PremiumChest":47,"GoldChest":0}}},{"name":"ChestBurster","spriteBase":"Creature_ChestBurster","spriteAwaken":"Creature_GhostChestBurster","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":55,"GoldChest":3}}},{"name":"ColonelChicken","spriteBase":"Boss_FriedFriday","spriteAwaken":"Boss_FriedFriday","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":50,"GoldChest":3}}},{"name":"CornEyeBat","spriteBase":"Creature_CornEyeBat","spriteAwaken":"Creature_CornEyeBat","Base":{"star":3,"weights":{"StandardChest":0,"PremiumChest":56,"GoldChest":0}},"Awaken":{"star":3,"weights":{"StandardChest":0,"PremiumChest":56,"GoldChest":0}}},{"name":"CornLord","spriteBase":"Creature_CornLord","spriteAwaken":"Creature_CornLord_Evo","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":60,"GoldChest":3}}},{"name":"CornasaurusRex","spriteBase":"CornasaurusRex","spriteAwaken":"CornasaurusRex","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":56,"GoldChest":0}}},{"name":"CutiePie","spriteBase":"Creature_CutiePie","spriteAwaken":"Creature_CutiePie","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":50,"GoldChest":3}}},{"name":"DeputyHotDog","spriteBase":"Boss_WurstWednesday","spriteAwaken":"Boss_WurstWednesday","Base":{"star":3,"weights":{"StandardChest":0,"PremiumChest":50,"GoldChest":0}},"Awaken":{"star":3,"weights":{"StandardChest":0,"PremiumChest":50,"GoldChest":0}}},{"name":"DeputyHotDog","spriteBase":"Boss_WurstWednesday","spriteAwaken":"Boss_WurstWednesday","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":0,"GoldChest":3}},"Awaken":{"star":3,"weights":{"StandardChest":0,"PremiumChest":50,"GoldChest":0}}},{"name":"DiamondDan","spriteBase":"Creature_DiamondDan","spriteAwaken":"Creature_Rubydan","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":50,"GoldChest":0}}},{"name":"DrStuffenstein","spriteBase":"Creature_DrStuffenstein","spriteAwaken":"Creature_DrStuffenstein","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":58,"GoldChest":0}}},{"name":"DragonFoot","spriteBase":"Creature_DragonFoot","spriteAwaken":"Creature_DragonFoot","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":65,"GoldChest":0}}},{"name":"ElfChief","spriteBase":"Creature_ElfChief","spriteAwaken":"Creature_ElfChief_Evo","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":58,"GoldChest":3}}},{"name":"ElfMarauder","spriteBase":"Creature_ElfMarauder","spriteAwaken":"Creature_ElfMarauder","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":63,"GoldChest":0}}},{"name":"EvilTree","spriteBase":"Creature_EvilTree","spriteAwaken":"Creature_EvilTree","Base":{"star":3,"weights":{"StandardChest":75,"PremiumChest":54,"GoldChest":0}}},{"name":"EyeGuy","spriteBase":"Creature_EyeGuy","spriteAwaken":"Creature_EyeGuy","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":61,"GoldChest":0}}},{"name":"FarmerTom","spriteBase":"Creature_FarmerTom","spriteAwaken":"Creature_FarmerTom","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":55,"GoldChest":0}}},{"name":"FatGoat","spriteBase":"Creature_FatGoat","spriteAwaken":"Creature_FatGoat","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":65,"GoldChest":0}}},{"name":"Feedman","spriteBase":"Creature_FeedMan","spriteAwaken":"Creature_FeedMan","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":50,"GoldChest":3}}},{"name":"FieldReaper","spriteBase":"Creature_FieldReaper","spriteAwaken":"Creature_FieldReaper","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":55,"GoldChest":3}}},{"name":"FireBaller","spriteBase":"Creature_FireBaller","spriteAwaken":"Creature_FireBaller","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":50,"GoldChest":3}}},{"name":"FlameingoWarrior","spriteBase":"Creature_3LegFlameingoWarrior","spriteAwaken":"Creature_3LegFlameingoWarrior","Base":{"star":3,"weights":{"StandardChest":0,"PremiumChest":39,"GoldChest":0}}},{"name":"Fluffantry","spriteBase":"Creature_Fluffantry","spriteAwaken":"Creature_Fluffantry","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":58,"GoldChest":0}}},{"name":"FuriousChick","spriteBase":"Creature_FuriousChick","spriteAwaken":"Creature_FuriousChick","Base":{"star":3,"weights":{"StandardChest":750,"PremiumChest":230,"GoldChest":0}}},{"name":"FuriousHen","spriteBase":"Creature_FuriousHen","spriteAwaken":"Creature_FuriousHen","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":54,"GoldChest":0}}},{"name":"FuriousRooster","spriteBase":"Creature_FuriousRooster","spriteAwaken":"Creature_FuriousRooster","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":54,"GoldChest":0}}},{"name":"GrainaryWeevil","spriteBase":"Creature_GrainaryWeevil","spriteAwaken":"Creature_GrainaryWeevil","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":50,"GoldChest":3}}},{"name":"GrapeSlimey","spriteBase":"Creature_GrapeSlimey","spriteAwaken":"Creature_GrapeSlimey","Base":{"star":3,"weights":{"StandardChest":750,"PremiumChest":230,"GoldChest":0}}},{"name":"GrayEyeBat","spriteBase":"Creature_GrayEyeBat","spriteAwaken":"Creature_GrayEyeBat","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":65,"GoldChest":0}}},{"name":"GreenCow","spriteBase":"Creature_GreenCow","spriteAwaken":"Creature_GreenCow","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":54,"GoldChest":0}}},{"name":"GreenSnakey","spriteBase":"Creature_GreenSnakey","spriteAwaken":"Creature_GreenSnakey","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":57,"GoldChest":0}}},{"name":"HateBird","spriteBase":"Creature_Hatebird","spriteAwaken":"Creature_Hatebird","Base":{"star":3,"weights":{"StandardChest":0,"PremiumChest":54,"GoldChest":0}}},{"name":"HotHead","spriteBase":"Creature_HotHead","spriteAwaken":"Creature_HotHead","Base":{"star":3,"weights":{"StandardChest":0,"PremiumChest":36,"GoldChest":0}}},{"name":"IceBaby","spriteBase":"Creature_IceIceBaby","spriteAwaken":"Creature_IceIceBaby","Base":{"star":3,"weights":{"StandardChest":0,"PremiumChest":240,"GoldChest":0}}},{"name":"IceDevil","spriteBase":"Creature_IceDevil","spriteAwaken":"Creature_IceDevil","Base":{"star":3,"weights":{"StandardChest":0,"PremiumChest":45,"GoldChest":0}}},{"name":"KingFluff","spriteBase":"Creature_KingFluff","spriteAwaken":"Creature_KingFluff_Evo","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":55,"GoldChest":3}}},{"name":"LieutenantLemonade","spriteBase":"Boss_ThirstyThursday","spriteAwaken":"Boss_ThirstyThursday","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":50,"GoldChest":3}}},{"name":"LostGolem","spriteBase":"Creature_LostGolem","spriteAwaken":"Creature_LostGolem_Evo","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":60,"GoldChest":3}}},{"name":"MadameSeota","spriteBase":"Creature_MadameSeota","spriteAwaken":"Creature_MadameSeota","Base":{"star":3,"weights":{"StandardChest":75,"PremiumChest":54,"GoldChest":0}},"Awaken":{"star":3,"weights":{"StandardChest":75,"PremiumChest":54,"GoldChest":0}}},{"name":"MagmaDog","spriteBase":"Creature_MagmaDog","spriteAwaken":"Creature_MagmaDog","Base":{"star":3,"weights":{"StandardChest":0,"PremiumChest":120,"GoldChest":0}}},{"name":"MagmaSaurusRex","spriteBase":"Creature_MagmasaurusRex","spriteAwaken":"Creature_MagmasaurusRex","Base":{"star":3,"weights":{"StandardChest":0,"PremiumChest":37,"GoldChest":0}}},{"name":"MagmaWall","spriteBase":"Creature_MagmaWall","spriteAwaken":"Creature_MagmaWall","Base":{"star":3,"weights":{"StandardChest":0,"PremiumChest":46,"GoldChest":0}}},{"name":"ManWitch","spriteBase":"Creature_ManWitch","spriteAwaken":"Creature_ManWitch","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":50,"GoldChest":3}}},{"name":"MouthBall","spriteBase":"Creature_Mouthball","spriteAwaken":"Creature_Mouthball","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":58,"GoldChest":0}}},{"name":"MrFixIt","spriteBase":"Creature_MrFixIt","spriteAwaken":"Creature_MrFixIt","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":50,"GoldChest":3}}},{"name":"NiceBird","spriteBase":"Creature_Lovebird","spriteAwaken":"Creature_Lovebird","Base":{"star":3,"weights":{"StandardChest":0,"PremiumChest":54,"GoldChest":0}}},{"name":"ObsidianRonin","spriteBase":"Creature_ObsidianRonin","spriteAwaken":"Creature_ObsidianRonin","Base":{"star":3,"weights":{"StandardChest":0,"PremiumChest":35,"GoldChest":0}}},{"name":"ObsidianSeahorse","spriteBase":"Creature_SeahorseBlack","spriteAwaken":"Creature_SeahorseBlack","Base":{"star":3,"weights":{"StandardChest":0,"PremiumChest":44,"GoldChest":0}}},{"name":"OilWall","spriteBase":"Creature_OilWall","spriteAwaken":"Creature_OilWall","Base":{"star":3,"weights":{"StandardChest":0,"PremiumChest":42,"GoldChest":0}}},{"name":"PatchyThePumpkin","spriteBase":"Creature_PatchyThePumpkin","spriteAwaken":"Creature_PatchyThePumpkin","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":65,"GoldChest":0}}},{"name":"PeaSoupBarfer","spriteBase":"Creature_PeaSoupBarfer","spriteAwaken":"Creature_PeaSoupBarfer","Base":{"star":3,"weights":{"StandardChest":75,"PremiumChest":54,"GoldChest":0}},"Awaken":{"star":3,"weights":{"StandardChest":75,"PremiumChest":54,"GoldChest":0}}},{"name":"Pickler","spriteBase":"Creature_Pickler","spriteAwaken":"Creature_Pickler","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":50,"GoldChest":3}}},{"name":"Pieclops","spriteBase":"Creature_Pieclops","spriteAwaken":"Creature_Pieclops","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":50,"GoldChest":3}}},{"name":"PileOfKittens","spriteBase":"Creature_PileofKittens","spriteAwaken":"Creature_PileofKittens","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":50,"GoldChest":3}}},{"name":"PirateBear","spriteBase":"Creature_PirateBear","spriteAwaken":"Creature_PirateBear_Evo","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":60,"GoldChest":3}}},{"name":"PorcelainGuardian","spriteBase":"Creature_PorcelainGuardian","spriteAwaken":"Creature_PorcelainGuardian","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":54,"GoldChest":0}}},{"name":"Poultergeist","spriteBase":"Creature_Poultergeist","spriteAwaken":"Creature_Poultergeist","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":65,"GoldChest":0}}},{"name":"PreTeenWolf","spriteBase":"Creature_PreTeenWolf","spriteAwaken":"Creature_PreTeenWolf_Evo","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":50,"GoldChest":3}}},{"name":"PunkCat","spriteBase":"Creature_PunkCat","spriteAwaken":"Creature_PunkCat","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":50,"GoldChest":3}}},{"name":"PurpleCow","spriteBase":"Creature_CowPurple","spriteAwaken":"Creature_CowPurple","Base":{"star":3,"weights":{"StandardChest":75,"PremiumChest":54,"GoldChest":0}},"Awaken":{"star":3,"weights":{"StandardChest":75,"PremiumChest":54,"GoldChest":0}}},{"name":"Quadurai","spriteBase":"Creature_Quadurai","spriteAwaken":"Creature_Quadurai","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":57,"GoldChest":0}}},{"name":"RainbowBarfer","spriteBase":"Creature_RainbowBarfer","spriteAwaken":"Creature_RainbowBarfer","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":55,"GoldChest":0}}},{"name":"RedHorn","spriteBase":"Creature_RedEyeling","spriteAwaken":"Creature_RedEyeling","Base":{"star":3,"weights":{"StandardChest":0,"PremiumChest":42,"GoldChest":0}}},{"name":"SPCMix","spriteBase":"Boss_FriedFriday","spriteAwaken":"Boss_FriedFriday","Base":{"star":3,"weights":{"StandardChest":0,"PremiumChest":56,"GoldChest":0}}},{"name":"SPCWhite","spriteBase":"Boss_FriedFriday","spriteAwaken":"Boss_FriedFriday","Base":{"star":3,"weights":{"StandardChest":0,"PremiumChest":56,"GoldChest":0}}},{"name":"SPCYellow","spriteBase":"Boss_FriedFriday","spriteAwaken":"Boss_FriedFriday","Base":{"star":3,"weights":{"StandardChest":0,"PremiumChest":56,"GoldChest":0}}},{"name":"SackOfPain","spriteBase":"Creature_SackOfPain","spriteAwaken":"Creature_SackOfPain","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":50,"GoldChest":0}}},{"name":"SandFoot","spriteBase":"Creature_SandFoot","spriteAwaken":"Creature_SandFoot","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":65,"GoldChest":0}}},{"name":"SandHorn","spriteBase":"Creature_SandDevil","spriteAwaken":"Creature_SandDevil","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":55,"GoldChest":0}}},{"name":"SandShark","spriteBase":"Creature_SandShark","spriteAwaken":"Creature_SandShark","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":50,"GoldChest":0}}},{"name":"Sandman","spriteBase":"Creature_Sandman","spriteAwaken":"Creature_Sandman_evo","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":58,"GoldChest":3}}},{"name":"SgtSandwich","spriteBase":"Boss_SandwishMonday","spriteAwaken":"Boss_SandwishMonday_Evo","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":50,"GoldChest":3}}},{"name":"Shark","spriteBase":"Creature_Shark","spriteAwaken":"Creature_Shark","Base":{"star":3,"weights":{"StandardChest":0,"PremiumChest":46,"GoldChest":0}}},{"name":"SnowBull","spriteBase":"Creature_SnowBull","spriteAwaken":"Creature_SnowBull","Base":{"star":3,"weights":{"StandardChest":0,"PremiumChest":42,"GoldChest":0}}},{"name":"SnowSaurusRex","spriteBase":"Creature_SnowSaurusRex","spriteAwaken":"Creature_SnowSaurusRex","Base":{"star":3,"weights":{"StandardChest":0,"PremiumChest":40,"GoldChest":0}}},{"name":"Stalker","spriteBase":"Creature_TheStalker","spriteAwaken":"Creature_TheStalker_Evo","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":60,"GoldChest":3}}},{"name":"SteakChop","spriteBase":"Creature_SteakChop","spriteAwaken":"Creature_SteakChop","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":50,"GoldChest":3}}},{"name":"StoneGolem","spriteBase":"Creature_StoneGolem","spriteAwaken":"Creature_StoneGolem","Base":{"star":3,"weights":{"StandardChest":0,"PremiumChest":42,"GoldChest":0}}},{"name":"SunKing","spriteBase":"Creature_SunKing","spriteAwaken":"Creature_SunKing","Base":{"star":3,"weights":{"StandardChest":0,"PremiumChest":58,"GoldChest":3}},"Awaken":{"star":3,"weights":{"StandardChest":0,"PremiumChest":58,"GoldChest":3}}},{"name":"TeethLeaf","spriteBase":"Creature_TeethLeaf","spriteAwaken":"Creature_TeethLeaf","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":60,"GoldChest":0}}},{"name":"TheBarrel","spriteBase":"Creature_Barrel","spriteAwaken":"Creature_Barrel","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":50,"GoldChest":3}}},{"name":"TheCooper","spriteBase":"Creature_TheCooper","spriteAwaken":"Creature_TheCooper","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":50,"GoldChest":3}}},{"name":"TheGhost","spriteBase":"Creature_Ghost","spriteAwaken":"Creature_Ghost","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":65,"GoldChest":0}}},{"name":"UglyTree","spriteBase":"Creature_TreeOfUgliness","spriteAwaken":"Creature_TreeOfUgliness","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":54,"GoldChest":0}}},{"name":"WallOfChocolate","spriteBase":"Creature_WallOfChocolate","spriteAwaken":"Creature_WallOfChocolate","Base":{"star":3,"weights":{"StandardChest":100,"PremiumChest":50,"GoldChest":3}}},{"name":"WhiteCat","spriteBase":"Creature_WhiteCat","spriteAwaken":"Creature_WhiteCat","Base":{"star":3,"weights":{"StandardChest":0,"PremiumChest":44,"GoldChest":0}}}],"chests":["StandardChest","PremiumChest","GoldChest"],"totals":{"StandardChest":128975,"PremiumChest":26062,"GoldChest":2796},"chestLabels":{"StandardChest":"Standard Chest","PremiumChest":"Premium Chest","GoldChest":"Gold Chest"}};
+
+const { creatures, chests, totals, chestLabels } = RAW_DATA;
+
+const ACTIVE_CHESTS = chests.filter(c => totals[c] > 0);
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let selectedChest = ACTIVE_CHESTS[0];
+let searchQuery   = '';
+let starFilter    = 'all';
+let formFilter    = 'all';
+let sortBy        = 'chance';
+let expandedCard  = null;
+
+// ── Chest tabs ────────────────────────────────────────────────────────────────
+const tabsEl = document.getElementById('chest-tabs');
+ACTIVE_CHESTS.forEach(chest => {
+  const btn = document.createElement('button');
+  btn.className = 'chest-tab' + (chest === selectedChest ? ' active' : '');
+  btn.textContent = chestLabels[chest] || chest;
+  btn.onclick = () => {
+    selectedChest = chest;
+    expandedCard = null;
+    tabsEl.querySelectorAll('.chest-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    render();
+  };
+  tabsEl.appendChild(btn);
+});
+
+// ── Controls ──────────────────────────────────────────────────────────────────
+document.getElementById('search').addEventListener('input', e => {
+  searchQuery = e.target.value; expandedCard = null; render();
+});
+document.getElementById('star-filter').addEventListener('change', e => {
+  starFilter = e.target.value; expandedCard = null; render();
+});
+document.getElementById('form-filter').addEventListener('change', e => {
+  formFilter = e.target.value; expandedCard = null; render();
+});
+document.getElementById('sort-by').addEventListener('change', e => {
+  sortBy = e.target.value; render();
+});
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+const IMG_BASE = 'icons_creatures/';
+
+function getSprite(cr, form) {
+  return form === 'Awaken' ? (cr.spriteAwaken || cr.spriteBase || '') : (cr.spriteBase || '');
+}
+
+function fmtPct(pct) {
+  if (pct === 0) return '0%';
+  if (pct < 0.01) return '<0.01%';
+  return pct.toFixed(pct < 0.1 ? 3 : pct < 1 ? 2 : 2) + '%';
+}
+
+function barClass(pct) {
+  if (pct === 0) return 'bar-low';
+  if (pct < 1)   return 'bar-low';
+  if (pct < 3)   return 'bar-mid';
+  return 'bar-high';
+}
+
+function splitName(name) {
+  // Insert space before capital letters after lowercase (camelCase split)
+  return name.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/_/g,' ');
+}
+
+// ── Build rows ────────────────────────────────────────────────────────────────
+function buildRows() {
+  const total = totals[selectedChest];
+  const rows = [];
+  const q = searchQuery.toLowerCase();
+
+  creatures.forEach(cr => {
+    ['Base','Awaken'].forEach(form => {
+      const data = cr[form];
+      if (!data) return;
+      if (formFilter !== 'all' && form !== formFilter) return;
+      if (starFilter !== 'all' && data.star !== parseInt(starFilter)) return;
+      if (q && !cr.name.toLowerCase().includes(q)) return;
+
+      const weight = data.weights[selectedChest] || 0;
+      const pct    = total > 0 ? (weight / total) * 100 : 0;
+
+      rows.push({ cr, form, name: cr.name, star: data.star, weight, pct });
+    });
+  });
+
+  if (sortBy === 'chance') rows.sort((a,b) => b.pct - a.pct || a.name.localeCompare(b.name));
+  else if (sortBy === 'name') rows.sort((a,b) => a.name.localeCompare(b.name));
+  else if (sortBy === 'star') rows.sort((a,b) => b.star - a.star || b.pct - a.pct);
+
+  return rows;
+}
+
+// ── Render ────────────────────────────────────────────────────────────────────
+function render() {
+  const grid  = document.getElementById('grid');
+  const rows  = buildRows();
+  const total = totals[selectedChest];
+
+  document.getElementById('showing-count').textContent = rows.length;
+  grid.innerHTML = '';
+
+  if (rows.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'empty';
+    empty.textContent = 'No creatures match your filters.';
+    grid.appendChild(empty);
+    return;
+  }
+
+  const maxPct = rows[0]?.pct || 1;
+
+  rows.forEach(row => {
+    const id = row.name + '_' + row.form;
+    const isExpanded = expandedCard === id;
+    const barW = maxPct > 0 ? Math.max(2, (row.pct / maxPct) * 100) : 0;
+    const sprite = getSprite(row.cr, row.form);
+
+    // Detail rows for all chests
+    const allChestRows = ACTIVE_CHESTS.map(c => {
+      const w = row.cr[row.form].weights[c] || 0;
+      const p = totals[c] > 0 ? (w / totals[c]) * 100 : 0;
+      return `<div class="detail-row">
+        <span class="detail-chest">${chestLabels[c] || c}</span>
+        <span class="detail-val ${p===0?'zero':''}">${fmtPct(p)} <span style="color:var(--muted);font-weight:400;font-size:.75rem">(${w.toLocaleString()})</span></span>
+      </div>`;
+    }).join('');
+
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <div class="card-header">
+        <div class="card-icon-wrap">
+          <img
+            class="card-icon"
+            src="${IMG_BASE}${sprite}.png"
+            alt="${row.name}"
+            loading="lazy"
+            onerror="this.style.display='none';this.parentElement.style.background='transparent'"
+          />
+        </div>
+        <div class="card-header-info">
+          <div class="card-top-row">
+            <div class="star-badge star-${row.star}">${'★'.repeat(row.star)}</div>
+            <div class="card-name">${splitName(row.name)}${row.form==='Awaken' ? '<span class="awaken-tag">Awaken</span>' : ''}</div>
+          </div>
+          <div class="card-pct ${row.pct===0?'zero':''}">${fmtPct(row.pct)}</div>
+        </div>
+      </div>
+      <div class="card-bar-wrap">
+        <div class="card-bar ${barClass(row.pct)}" style="width:${barW}%"></div>
+      </div>
+      <div class="card-detail ${isExpanded ? 'open' : ''}">
+        <div style="font-size:.75rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem">All Chest Rates</div>
+        ${allChestRows}
+        <div style="margin-top:.5rem;font-size:.75rem;color:var(--muted)">Weight in <em>${chestLabels[selectedChest]}</em>: ${row.weight.toLocaleString()} / ${total.toLocaleString()}</div>
+      </div>
+    `;
+
+    card.onclick = () => {
+      expandedCard = expandedCard === id ? null : id;
+      render();
+    };
+
+    grid.appendChild(card);
+  });
+}
+
+render();
+</script>
+</body>
+</html>
